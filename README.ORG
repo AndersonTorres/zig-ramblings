@@ -1,0 +1,16 @@
+# -*- mode: org; coding: utf-8-unix; fill-column: 80 -*-
+
+#+title: Zig Ramblings
+#+author: Anderson Torres
+
+Neste repositório eu guardo materiais diversos sobre a linguagem de programação
+Zig, boa parte deles de minha autoria.
+
+Por enquanto, estes materiais e projetos se resumem a:
+
+- Um livro de introdução à programação, usando Zig como linguagem;
+- Implementação de bibliotecas de algoritmos e de resolução de problemas, em
+  especial:
+  - [[http://www.rosettacode.org/wiki/Rosetta_Code][Rosetta Code]]
+  - [[https://the-algorithms.com/][The Algorithms.com]]
+  - [[https://projecteuler.net/][Project Euler]]
