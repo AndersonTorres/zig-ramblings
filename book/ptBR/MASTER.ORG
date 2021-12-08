@@ -2,3 +2,6 @@
 
 #+title: Zig Experience
 #+author: Anderson Torres
+#+language: pt_BR
+
+#+html_head: <link rel="stylesheet" type="text/css" href="../static/style.css" />
