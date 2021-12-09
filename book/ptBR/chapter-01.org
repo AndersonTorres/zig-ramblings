@@ -147,3 +147,128 @@
     Esta função recebe dois parâmetros. O primeiro, ="{s}"=, é uma string de
     formatação, enquanto o segundo, =.{"Hello, World!\n"}= é uma struct anônima
     que serve de parâmetro para a string de formatação.
+
+*** Variáveis, Expressões e Atribuições
+
+    Como ilustração, vamos escrever um programa que converte escalas de
+    temperatura.
+
+    #+begin_src zig :mkdirp yes :tangle ./code/chapter-01/temperature.zig
+      const std = @import("std");
+      const dprint = std.debug.print;
+
+      pub fn main() void {
+          var celsius_temperature: f32 = 100;
+          var kelvin_temperature: f32 = undefined;
+          var fahrenheit_temperature: f32 = undefined;
+
+          // celsius to kelvin conversion
+          kelvin_temperature = celsius_temperature + 273.16;
+          fahrenheit_temperature = 9*(kelvin_temperature - 273.16)/5 + 32; // kelvin to fahrenheit conversion
+
+          const format = "\tCelsius: {d:.3}\n\tFahrenheit: {d:.3}\n\tKelvin: {d:.3}\n";
+
+          dprint(format, .{celsius_temperature,
+                           fahrenheit_temperature,
+                           kelvin_temperature});
+      }
+    #+end_src
+
+**** Execução
+
+     Outra forma de executar programas Zig é invocando o comando =zig run=. Este
+     comando não gera um arquivo executável; em vez disso, ele executa o programa
+     diretamente. [fn:: Veteranos acostumados com linguagens interpretadas como
+     Python reconhecerão a semelhança!]
+
+     #+begin_example
+     $> zig run temperature.zig
+         Celsius: 100.000
+         Fahrenheit: 212.000
+         Kelvin: 373.160
+     $>
+     #+end_example
+
+**** Destrinchando
+
+    #+begin_src zig
+          var celsius_temperature: f32 = 100;
+    #+end_src
+
+    Esta é uma declaração de variável, como indicado pela palavra-chave =var=.
+    Em geral, declarações e expressões em geral finalizam com um ponto-e-vírgula
+    =;=.
+
+    A palavra-chave =f32= indica que o valor armazenado pelo identificador
+    =celsius_temperature= será do tipo =f32= - um ponto flutuante de 32
+    bits. Inicializamos este valor com =100=.
+
+    #+begin_src zig
+          var kelvin_temperature: f32 = undefined;
+          var fahrenheit_temperature: f32 = undefined;
+    #+end_src
+
+    Em Zig, é obrigatório inicializar as variáveis com algum valor. Caso não
+    seja possível ou viável inicializar alguma variável com um valor concreto,
+    usa-se para tal a palavra-chave =undefined= em seu lugar.
+
+    #+begin_src zig
+          // celsius to kelvin conversion
+    #+end_src
+
+    Esta linha é um comentário. Em Zig, comentários iniciam com =//= e encerram
+    no fim da linha (LF - o caractere /linefeed/). O compilador ignora os
+    comentários, não os transformando em código executável.
+
+    Zig não tem o conceito de "comentário multi-linha" (como, por exemplo,
+    comentários =/* ... */= em C++).
+
+    #+begin_src zig
+          kelvin_temperature = celsius_temperature + 273.16;
+    #+end_src
+
+    Esta é uma atribuição, como indicada pelo sinal ===. O valor da expressão do
+    lado direito é atribuído à variável do lado esquerdo. Como já é esperado, as
+    operações matemáticas seguem as regras de precedência e associatividade com
+    as quais estamos acostumados: multiplicações e divisões são efetuadas antes
+    de adições e subtrações.[fn:3]
+
+    #+begin_src zig
+          fahrenheit_temperature = 9*(kelvin_temperature - 273.16)/5 + 32; // kelvin to fahrenheit conversion
+    #+end_src
+
+    Como antes, esta é uma atribuição. Operações contidas entre parênteses são
+    efetuadas primeiro.
+
+    A título de demonstração, há um comentário após esta atribuição; comentários
+    podem começar em qualquer posição de uma linha, estendendo-se até o fim da
+    linha, como de costume.
+
+    #+begin_src zig
+          const format = "\tCelsius: {d:.3}\n\tFahrenheit: {d:.3}\n\tKelvin: {d:.3}\n";
+    #+end_src
+
+    Nesta linha, é atribuída a =format= uma cadeia de caracteres (vulgarmente
+    conhecida como /string/). Esta string tem algumas particularidades que valem
+    ser mencionadas.
+
+    A primeira: as sequências de caracteres =\t= e =\n= são chamados /caracteres
+    de escape/, e têm um significado especial. =\t= é o caractere de tabulação
+    (TAB), e o caractere =\n= é o caractere que indica o início de uma nova
+    linha.
+
+    A segunda: os gabaritos de formatação ={d:.3}=. Eles são interpretados pela
+    função =dprint=, e servem para determinar como os demais parâmetros serão
+    impressos. Neste caso específico, serão numerais (=d=) impressos com 3 casas
+    decimais após o ponto (=.3=).
+
+    #+begin_src zig
+          dprint(format, .{celsius_temperature,
+                           fahrenheit_temperature,
+                           kelvin_temperature});
+      }
+    #+end_src
+
+    Esta é a função =dprint()=. O primeiro parâmetro já foi explicado antes. O
+    segundo, como já foi dito, representa uma struct anônima com três campos, os
+    quais serão relacionados com os gabaritos ={d:.3}= de =format=.
