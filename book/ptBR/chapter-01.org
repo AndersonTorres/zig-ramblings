@@ -32,3 +32,118 @@
     contendo código Zig, além de acesso a uma shell de comandos e do compilador
     Zig oficial. Mais adiante, vamos comentar o processo de obter um ambiente
     apropriado para esta tarefa.
+
+** Conceitos
+
+*** Um Programa Simples
+
+    Vamos começar com um programa simples que exibe uma frase na tela do
+    terminal.
+
+    Escreva o texto abaixo em um arquivo com o nome terminado em =.zig=, digamos
+    =hello.zig=.
+
+    #+begin_src zig :mkdirp yes :tangle ./code/chapter-01/hello.zig
+      const std = @import("std");
+      const dprint = std.debug.print;
+
+      pub fn main() void {
+          dprint("{s}", .{"Hello, World!\n"});
+      }
+    #+end_src
+
+**** Execução
+
+     Agora, para compilar este programa, execute o comando =zig build-exe
+     hello.zig=. Se o código não contiver erros que impeçam uma compilação
+     bem-sucedida, um arquivo de mesmo nome mas com extensão diferente será
+     criado como resultado, no caso, =hello=. Podemos então executá-lo:
+
+     #+begin_example
+     $> zig build-exe hello.zig
+     $> ./hello
+     Hello, World!
+     $>
+     #+end_example
+
+**** Destrinchando
+
+    Vamos então percorrer este programa linha a linha:
+
+    #+begin_src zig
+      const std = @import("std");
+    #+end_src
+
+    Esta é uma típica atribuição. Vamos destrinchá-la:
+
+    - =const= é uma palavra reservada[fn:1] da linguagem Zig; ela tem um
+      propósito distinto, e é tratada de uma maneira especial pelo compilador.
+      Especificamente, ela indica que o identificador =std= é uma constante,
+      armazenando um valor imutável.
+
+    - =std= é um identificador. Identificadores servem para identificar,
+      fornecer uma identidade a uma entidade utilizada no programa.
+
+    - =@import( ... )= é uma função embutida na linguagem Zig. Esta função tem
+      uma funcionalidade bastante importante: ela recebe como parâmetro a
+      localização, no sistema de arquivos, onde se situa um arquivo escrito na
+      linguagem Zig, e retorna uma estrutura correspondente a este
+      arquivo. [fn:: Na linguagem Zig, um arquivo contendo código-fonte Zig é
+      tratado como uma =struct=.].
+
+      Normalmente, =@import= recebe como parâmetro o caminho relativo ao arquivo
+      desejado; porém, há alguns valores especiais que este parâmetro pode
+      assumir. Por exemplo, ="std"= representa a biblioteca-padrão de Zig.
+
+   Sumarizando esta linha: =std= é uma constante que armazena a
+   biblioteca-padrão de Zig.
+
+    #+begin_src zig
+      const dprint = std.debug.print;
+    #+end_src
+
+    Da biblioteca =std=, vamos utilizar uma função para exibir frases na tela, a
+    saber, =std.debug.print=. Como o nome sugere, ela costuma ser utilizada para
+    "debug print", uma antiga técnica de depuração que consiste em emitir
+    mensagens na tela a fim de rastrear o comportamento de um programa.
+
+    Para escrever menos, atribuímos a ela o identificador =dprint=.[fn:: De
+    fato, poderíamos ter escrito =@import("std").debug.print( ... )=
+    diretamente, todavia isto sacrificaria muito da legibilidade do programa.]
+
+    #+begin_src zig
+      pub fn main() void {
+    #+end_src
+
+    Esta é uma declaração de função. Vamos destrinchá-la:
+
+    - A palavra-chave =pub= indica que o objeto definido (a saber, =main=) será
+      /público/. Isto significa que ele estará visível acaso algum código Zig a
+      importe.
+
+    - A palavra-chave =fn= indica que o objeto definido - a saber, =main= -
+      trata-se de uma função.
+
+      A função =main= tem um propósito especial em Zig. Ela indica ao compilador
+      onde o programa inicia sua execução (no jargão, =main= é o /ponto de
+      entrada/ do programa). Normalmente, programas feitos para serem executados
+      dependem de uma função =main= que seja pública.[fn:2]
+
+    - Por fim, =void= é mais uma palavra reservada; especificamente aqui, ela
+      indica que a função =main()= retorna =void= (ou seja, ela não retorna
+      valor algum para quem a chamou).
+
+    - As chaves ={ ... }= envolvem o corpo de uma definição de função. Mais
+      geralmente, chaves servem para agrupar comandos e outros tipos de
+      declaração.
+
+    #+begin_src zig
+          dprint("{s}", .{"Hello, World!\n"});
+    #+end_src
+
+    Aqui estamos de fato empregando a função =dprint()=. Não adentraremos em
+    detalhes de seu funcionamento neste momento, mas é possível falar do básico:
+
+    Esta função recebe dois parâmetros. O primeiro, ="{s}"=, é uma string de
+    formatação, enquanto o segundo, =.{"Hello, World!\n"}= é uma struct anônima
+    que serve de parâmetro para a string de formatação.
