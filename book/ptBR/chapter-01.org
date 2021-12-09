@@ -1,3 +1,8 @@
 # -*- mode: org; coding: utf-8-unix; fill-column: 80 -*
 
 * Capítulo 1
+
+  Este capítulo dá uma visão geral da linguagem Zig, mediante exemplos
+  práticos. Exibiremos e analisaremos diversos códigos completos a fim de
+  ilustrar os conceitos da linguagem. Evitamos adentrar em detalhes técnicos
+  neste capítulo, dado que teremos espaço para isso nos capítulos futuros.
