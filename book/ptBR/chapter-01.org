@@ -272,3 +272,178 @@
     Esta é a função =dprint()=. O primeiro parâmetro já foi explicado antes. O
     segundo, como já foi dito, representa uma struct anônima com três campos, os
     quais serão relacionados com os gabaritos ={d:.3}= de =format=.
+
+*** Estruturas de Controle
+
+    Via de regra, os comandos de um programa são executados sequencialmente.
+    Porém, muito comumente os programas exigem alteração neste fluxo sequencial
+    padrão. As formas mais corriqueiras de desvio de fluxo envolvem repetições e
+    ações baseadas em alternativas.
+
+    Comandos =if-else= fornecem ações alternativas, enquanto comandos =while=
+    fornecem mecanismos de repetição. Estas construções exigem a evaluação de
+    expressões lógicas. Ao contrário de grande parte das linguagens de
+    programação, em Zig somente expressões explicitamente booleanas são
+    verdadeiras ou falsas. Em Zig, não se aplica o conceito onde "=NULL=
+    significa falso, não-=NULL= significa verdadeiro".
+
+    Vamos ilustrar com um pequeno programa que calcula as somas dos números
+    naturais pares e dos ímpares entre um e mil (inclusive).
+
+    #+begin_src zig :mkdirp yes :tangle ./code/chapter-01/sums.zig
+      const std = @import("std");
+      const dprint = std.debug.print;
+
+      pub fn main() void {
+          const lower_bound = 0;
+          const upper_bound = 1_000;
+          var i: i32 = lower_bound;
+          var odd_sum: i32 = 0;
+          var even_sum: i32 = 0;
+          var all_sum: i32 = 0;
+
+          while (i <= upper_bound) {
+              all_sum += i;
+              if (@mod(i, 2) == 1) {
+                  odd_sum += i;
+              } else {
+                  even_sum += i;
+              }
+              i += 1;
+          }
+
+          const format =
+              \\Lower bound: {d}
+              \\Upper bound: {d}
+              \\Sum of even numbers: {d}
+              \\Sum of odd numbers: {d}
+              \\Sum of all numbers: {d}
+              \\
+          ;
+
+          dprint(format, .{lower_bound,
+                           upper_bound,
+                           even_sum,
+                           odd_sum,
+                           all_sum});
+      }
+    #+end_src
+
+**** Execução
+
+     #+begin_example
+     $> zig run sums.zig
+     Lower bound: 0
+     Upper bound: 1000
+     Sum of even numbers: 250500
+     Sum of odd numbers: 250000
+     Sum of all numbers: 500500
+     $>
+     #+end_example
+
+**** Destrinchando
+
+     #+begin_src zig
+           const upper_bound = 1_000;
+     #+end_src
+
+     Em Zig, é possível escrever numerais extensos usando o caractere
+     /underscore/ =_=. Ele não altera o valor representado pelo numeral,
+     servindo primariamente para melhor legibilidade de números grandes. Esta
+     linha, por exemplo, atribui o valor =1000= à constante =upper_bound=.
+
+     #+begin_src zig
+           while (i <= upper_bound) {
+     #+end_src
+
+     O comando =while= aqui é composto de uma condição de teste e de um bloco de
+     comandos envoltos por chaves ={...}=. Em um comando =while= típico,
+     ocorre o seguinte:
+
+     1. A condição de teste, contida entre parênteses, é evaluada.
+     2. Caso seja verdadeira, o bloco de comandos é executado, e o fluxo de
+        controle retornará ao início do bloco, a fim de que a condição seja
+        testada novamente.
+     3.  Caso seja falsa, o fluxo de controle é direcionado para o comando
+        seguinte ao bloco, após a chave de fechamento =}= (o que, neste caso, é
+        o =const format ...=).
+
+     #+begin_src zig
+               all_sum += i;
+     #+end_src
+
+     Este é um tipo novo de atribuição: o /incremento/.
+
+     Este comando significa que o valor armazenado em =all_sum= receberá um
+     incremento do valor de =i=. Um comando equivalente seria
+
+     #+begin_src zig
+       all_sum = all_sum + i;
+     #+end_src
+
+     Prossigamos...
+
+     #+begin_src zig
+               if (@mod(i, 2) == 1) {
+                   odd_sum += i;
+               } else {
+                   even_sum += i;
+               }
+     #+end_src
+
+     Aqui temos o nosso comando =if-else=. Ele é composto de uma condição e de
+     dois blocos de comandos. Em um comando =if-else= típico, ocorre o seguinte:
+
+     1. A condição, contida em parênteses, é evaluada.
+     2. Caso a condição seja verdadeira, o primeiro bloco é executado;
+     3. Caso contrário, o segundo bloco, situado após o =else=, será executado.
+     4. Após isto, o fluxo de controle seguirá para o próximo comando, a saber:
+
+     #+begin_src zig
+               i += 1;
+     #+end_src
+
+     Como explicamos antes, o valor de =i= é incrementado de 1.
+
+     #+begin_src zig
+           }
+     #+end_src
+
+     Esta chave encerra o comando =while (...)=. Como explicado antes, o fluxo
+     de controle volta para a expressão =while= a fim de a condição ser
+     novamente evaluada.
+
+     #+begin_src zig
+           const format =
+               \\Lower bound: {d}
+               \\Upper bound: {d}
+               \\Sum of even numbers: {d}
+               \\Sum of odd numbers: {d}
+               \\Sum of all numbers: {d}
+           ;
+     #+end_src
+
+     Uma novidade: a /string literal multilinha/.
+
+     Strings literais multilinha, como o nome sugere, podem estender-se por
+     várias linhas, e além disso, não reconhecem os caracteres de escape como
+     especias; sequências de caracteres como =\n= ou =\t= são interpretadas
+     literalmente.
+
+     Uma string literal multilinha inicia-se com a sequência =\\= e prossegue
+     até o final da linha. A string assim formada não inclui o caractere de nova
+     linha ao final; porém, se a próxima linha é iniciada com =\\=, então o
+     caractere de nova linha é incluso, e assim a string continua.
+
+     #+begin_src zig
+           dprint(format, .{lower_bound,
+                            upper_bound,
+                            even_sum,
+                            odd_sum,
+                            all_sum});
+       }
+     #+end_src
+
+     E a nossa costumeira função =dprint=. Como antes, os gabaritos ={d}= são
+     interpretados como números, enquanto o segundo argumento serve como
+     parâmetro para a string de formatação.
