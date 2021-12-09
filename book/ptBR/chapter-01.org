@@ -447,3 +447,217 @@
      E a nossa costumeira função =dprint=. Como antes, os gabaritos ={d}= são
      interpretados como números, enquanto o segundo argumento serve como
      parâmetro para a string de formatação.
+
+*** Funções
+
+    /Função/, também conhecido como /procedimento/, /sub-rotina/ ou
+    /subprograma/, é (grosso modo) um agrupamento de comandos que realizam uma
+    determinada tarefa.
+
+    Em geral, programas Zig contam com pelo menos uma função, a =main()= como já
+    vimos. É a partir dela que o programa se inicia. As diversas funções de um
+    programa podem ser invocadas a partir de =main()= e podem invocar umas às
+    outras.
+
+    Uma função em Zig tem o seguinte formato:
+
+    #+begin_example
+    fn name(params) returnType {...}
+    #+end_example
+
+    onde =returnType= é o tipo do valor retornado pela função, e =params= são as
+    declarações das variáveis de entrada da função.
+
+    Vamos ilustrar o conceito de funções com um pequeno programa que verifica se
+    um determinado número inteiro positivo é primo ou não. [fn:4] Vamos
+    aproveitar o ensejo e inserir algumas novidades.
+
+    #+begin_src zig :mkdirp yes :tangle ./code/chapter-01/primality.zig
+      const std = @import("std");
+
+      const dprint = std.debug.print;
+      const expect = std.testing.expect;
+
+      fn smallestDivisor(n: i64) i64 {
+          var found: bool = false; // was a factor found?
+          var exausted: bool = false; // was the search space exausted?
+          var d: i64 = 2; // possible divisor being tested
+
+          // while no divisor was found on the possible divisor range
+          while (!found and !exausted){
+              if (d*d > n) { // exausted the space
+                  exausted = true;
+              } else if (@mod(n, d) == 0) { // divisor found
+                  found = true;
+              } else { // update the divisor
+                  d += 1;
+              }
+          }
+
+          return (if (found) d else n);
+      }
+
+      test "smallestDivisor tests" {
+          try expect(smallestDivisor(55) == 5);
+          try expect(smallestDivisor(5*16) == 2);
+          try expect(smallestDivisor(5*7) + smallestDivisor(7*11) == 5+7);
+      }
+
+      fn isPrime (n: i64) bool {
+          return (smallestDivisor(n) == n);
+      }
+
+      test "isPrime tests" {
+          try expect(isPrime(2*3+1));
+          try expect(!isPrime(11111_11111));
+      }
+
+      pub fn main() void {
+          const format =
+              \\Number: {d}
+              \\Smallest factor: {d}
+              \\
+          ;
+
+          const N = 2013;
+
+          dprint(format, .{N,
+                           smallestDivisor(N)});
+      }
+    #+end_src
+
+**** Execução
+
+     #+begin_example
+     $> zig test primality.zig
+     Test [1/2] test "smallestDivisor tests"...
+     Test [2/2] test "isPrime tests"...
+
+     All 2 tests passed.
+     $> zig run primality.zig
+     Number: 2013
+     Smallest factor: 3
+     $>
+     #+end_example
+
+**** Destrinchando
+
+    #+begin_src zig
+      const expect = std.testing.expect;
+    #+end_src
+
+    =expect(...)= é uma função da biblioteca padrão de Zig. Ela tem uma
+    funcionalidade importante, intimamente relacionada a testes, a qual
+    explicaremos mais tarde.
+
+    #+begin_src zig
+          // while no divisor was found on the possible divisor range
+          while (!found and !exausted){
+                  if (d*d > n) { // exausted the space
+                  exausted = true;
+              } else if (@mod(n, d) == 0) { // divisor found
+                  found = true;
+              } else { // update the divisor
+                  d += 1;
+              }
+          }
+    #+end_src
+
+    O algoritmo mais simples e mais conhecido para testar a primalidade de um
+    número consiste em, sucessivamente, verificar todos os naturais menores que
+    o número de entrada, até encontrar algum que seja divisor ou até exauri-los
+    sem nada encontrar. Além disso, uma otimização muito conhecida deste
+    algoritmo consiste em testar somente até a raiz quadrada do número de
+    entrada, em vez de testar absolutamente todo o intervalo.[fn:5]
+
+    Para codificar este algoritmo, precisaremos dos seguintes elementos, pelo
+    menos:
+
+    - uma estrutura de repetição para percorrer o espaço amostral de divisores;
+    - dois marcadores:
+      - um que sinalize se encontramos um divisor;
+      - um que sinalize se ultrapassamos o limite de busca.
+
+    Em qualquer destes dois casos, a repetição deve ser interrompida.
+
+    #+begin_src zig
+          return (if (found) d else n);
+      }
+    #+end_src
+
+    Uma novidade: comandos =if= também funcionam como expressões![fn:6] A
+    expressão acima pode ser reescrita na forma equivalente abaixo:
+
+    #+begin_src zig zig
+          if (found) {
+              return d;
+          } else {
+              return n;
+          }
+      }
+    #+end_src
+
+    Assim sendo, se o marcador =found= for verdadeiro, isto significa que
+    encontramos um divisor não-trivial, o qual obviamente está em =d=; caso
+    contrário, o número de entrada não tem divisores não-triviais, sendo
+    portanto primo.
+
+    #+begin_src zig
+      test "smallestDivisor tests" {
+    #+end_src
+
+    Zig fornece suporte a testes como parte integrante da linguagem.
+
+    Um teste consiste nestes três elementos:
+
+    - A palavra-chave =test=;
+    - Uma string usada como identificador do teste;
+    - Um bloco de comandos a ser executado.
+
+    Para executar os testes, basta utilizar o comando =zig test=, como mostrado
+    anteriormente.
+
+    #+begin_src zig
+          try expect(smallestDivisor(55) == 5);
+    #+end_src
+
+    Esta expressão exibe diversas peculiaridades sobre a linguagem Zig. Neste
+    capítulo introdutório, não vamos nos aprofundar nelas, teceremos apenas
+    algumas considerações rápidas.
+
+    - =try= é uma palavra reservada da linguagem Zig. Ela está relacionada ao
+      sistema de tratamento de erros da linguagem. Grosso modo, um comando =try=
+      executa o seu comando correspondente e, caso encontre um erro, ele retorna
+      imediatamente da função com este erro, senão ele prossegue para o próximo
+      comando
+
+      Especificamente aqui, ele executa =expect(smallestDivisor(55) == 5)= e
+      retorna em caso de erro ou prossegue caso contrário.
+
+    - =expect(...)= é uma função da biblioteca padrão de Zig. Quando seu
+      argumento é =false=, ela emite uma mensagem de erro e aborta a execução.
+
+    #+begin_src zig
+      fn isPrime (n: i64) bool {
+          return (smallestDivisor(n) == n);
+      }
+    #+end_src
+
+    Por "definição", um número primo tem ele mesmo como menor divisor (além
+    do trivial 1).
+
+    #+begin_src zig
+      test "isPrime tests" {
+          try expect(isPrime(2*3+1));
+          try expect(!isPrime(11111_11111));
+      }
+    #+end_src
+
+    Podemos ter mais de um bloco de testes em Zig.
+
+    Como antes, escrevemos o número 1111111111 (dez dígitos 1) usando
+    /underscores/. Note que não existe uma posição fixa para este caractere:
+    anteriormente, usamos =1_000= como separador de milhares, enquanto aqui
+    separamos em grupos de cinco. A única restrição é que o underscore não pode
+    ser o primeiro caractere, porque com isso o "número" seria interpretado como
+    um identificador.
