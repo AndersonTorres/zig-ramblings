@@ -6,3 +6,29 @@
   práticos. Exibiremos e analisaremos diversos códigos completos a fim de
   ilustrar os conceitos da linguagem. Evitamos adentrar em detalhes técnicos
   neste capítulo, dado que teremos espaço para isso nos capítulos futuros.
+
+** Considerações Gerais
+
+    De maneira geral, um computador contém uma coleção de programas e arquivos
+    especiais, os quais formam aquilo que chamamos de /sistema operacional/.
+    Existe uma gama bastante variada de sistemas operacionais, indo desde os
+    mais conhecidos comercialmente Windows e Mac OS X até outros com maior apelo
+    técnico no mundo /open source/ como as distribuições Linux, os descendentes
+    do BSD (FreeBSD, NetBSD, OpenBSD) e até mesmo projetos de reavivamento como
+    o FreeDOS e o Haiku OS, este último inspirado no extinto BeOS.
+
+    Um sistema operacional tem por objetivo gerenciar os recursos da máquina e
+    fornecer interfaces convenientes entre estes recursos e os seus usuários.
+
+    Entre os diversos recursos fornecidos pelo sistema operacional, estão
+    editores de texto e interpretadores de linguagens de programação. Comumente
+    estes editores e interpretadores são distribuídos de forma independente
+    entre si; porém, não é incomum a presença de ambientes integrados de
+    programação. De fato, existem pacotes de integração que costumam ser mais
+    famosos que seus próprios componentes individuais, como as IDEs
+    comercializadas pela Borland e Microsoft.
+
+    Por ora, vamos assumir que o leitor consiga criar e editar arquivos de texto
+    contendo código Zig, além de acesso a uma shell de comandos e do compilador
+    Zig oficial. Mais adiante, vamos comentar o processo de obter um ambiente
+    apropriado para esta tarefa.
